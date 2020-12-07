@@ -44,58 +44,58 @@ eyr:2022
 iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 """
 
-def check_passports(input):
-    req_fields = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}  # "cid" optional
+def check_passports(passports):
     valid_passports = 0
-    passport = {}
 
-    for line in input:
-        if line != '':
-            kv_pairs = [x.split(':') for x in line.split(' ')]
+    for passport_data in passports:
+        passport_data = passport_data.replace('\n', ' ')
+        passport_data = passport_data.strip(' ')
 
-            for pair in kv_pairs:
-                passport[pair[0]] = pair[1]
+        fields = [field for field in passport_data.split(' ')]
+        kv_pairs = [pair.split(':') for pair in fields]
 
-        elif line == '':
-            # end of passport, validate values
-            if "cid" in passport:
-                passport.pop("cid")
+        passport = {pair[0]: pair[1] for pair in kv_pairs}
 
-            if passport.keys() != req_fields: continue
-            if not (1920 <= int(passport["byr"]) <= 2002): continue
-            if not (2010 <= int(passport["iyr"]) <= 2020): continue
-            if not (2020 <= int(passport["eyr"]) <= 2030): continue
-            if not (len(passport["pid"]) == 9): continue
-            if not (passport["ecl"] in {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}): continue
-            if not (re.fullmatch(r"#[0-9a-f]{6}", passport["hcl"])) : continue
-
-            height = passport["hgt"]
-            if not (re.fullmatch(r"\d+(cm|in)", height)): continue
-            if height.endswith("cm") and not (150 <= int(height[:-2]) <= 193): continue
-            if height.endswith("in") and not(59 <= int(height[:-2]) <= 76): continue
-
-            # if we've reached this far then the  passport is valid
-            #print(passport)
-            valid_passports += 1
-            passport = {}
+        if validate(passport):
+            valid_passports +=1
 
     return valid_passports
 
+
+def validate(passport):
+    req_fields = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}  # "cid" optional
+
+    if "cid" in passport:
+        passport.pop("cid")
+
+    if passport.keys() != req_fields: return False
+    if not (1920 <= int(passport["byr"]) <= 2002): return False
+    if not (2010 <= int(passport["iyr"]) <= 2020): return False
+    if not (2020 <= int(passport["eyr"]) <= 2030): return False
+    if not (len(passport["pid"]) == 9): return False
+    if not (passport["ecl"] in {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"}): return False
+    if not (re.fullmatch(r"#[0-9a-f]{6}", passport["hcl"])) : return False
+
+    height = passport["hgt"]
+    if not (re.fullmatch(r"\d+(cm|in)", height)): return False
+    if height.endswith("cm") and not (150 <= int(height[:-2]) <= 193): return False
+    if height.endswith("in") and not(59 <= int(height[:-2]) <= 76): return False
+
+    # if we've reached this far then the  passport is valid
+    return True
+
+
 def get_puzzle_input():
     with open('InputData/day4.txt', 'r') as file:
-        file_data = [line.strip('\n') for line in file]
-
-        return file_data
+        return file.read()
 
 
 if __name__ == '__main__':
-    input = test_data.split('\n')
-    #input = test_data_invlaid.split('\n')
-    #input = test_data_valid.split('\n')
+    #passports = test_data.split('\n\n')
+    #passports = test_data_invlaid.split('\n\n')
+    #passports = test_data_valid.split('\n\n')
 
-    #input = get_puzzle_input()
+    passports = get_puzzle_input().split('\n\n')
 
-    num = check_passports(input)
+    num = check_passports(passports)
     print(num)
-
-    #other()
