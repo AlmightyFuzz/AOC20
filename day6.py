@@ -35,13 +35,24 @@ def count_questions(groups):
 
     return total
 
+def count_common_questions(groups):
+    total = 0
+
+    for group in groups:
+        qs = [set(person) for person in group]
+        common_qs = set.intersection(*qs) # '*' => list expansion
+
+        total += len(common_qs)
+
+    return total
+
 if __name__ == "__main__":
     #input = [group.split('\n') for group in test_data1.split('\n\n')]
     #input = [group.split('\n') for group in test_data2.split('\n\n')]
 
     input = get_puzzle_input()
     
-    num_qs = count_questions(input)
-    #num_qs = sum( [len(set(''.join(group))) for group in input] )
+    #num_qs = count_questions(input)
+    num_qs = count_common_questions(input)
 
     print(num_qs)
